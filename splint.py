@@ -59,15 +59,17 @@ def wings_interpolation(filename,eps):
         x+=[x[i]+eps]
         i+=1
 
-    return y1,y2,x[:(len(y1))]
-       
+    return y1,y2
+
+#def display_wing(
 
 def main():
-    (yover,yunder,x)=wings_interpolation("DU84132V.DAT",0.001)
-    plt.ylim(-0.5,0.5)
-    plt.plot(x,yover, linewidth=1.0)
-    plt.plot(x,yunder, linewidth=1.0)
-    plt.show()
+    yover,yunder=wings_interpolation("DU84132V.DAT",0.001)
+
+    # plt.ylim(-0.5,0.5)
+    # plt.plot(x,yover, linewidth=1.0)
+    # plt.plot(x,yunder, linewidth=1.0)
+    # plt.show()
 
 
 if __name__ ==  '__main__':
