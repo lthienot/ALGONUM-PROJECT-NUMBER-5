@@ -53,16 +53,22 @@ def spline(x, y, n, yp1, ypn):
 def derivate(ix, iy):
     n = len(ix) - 1
     a1 = (iy[1]-iy[0])/(ix[1]-ix[0])
-    an = (iy[n-1]-iy[n])/(ix[n-1]-ix[n])
+    an = (iy[n-1]-iy[n])/-(ix[n-1]-ix[n])
     return (a1, an)
     
         
 def main():
     (ex,ey,ix,iy) = load_foil("aaa.dat")
-    (yp1, ypn)=derivate(ix, iy)
-    n = len(ix)
-    splin=spline(ix, iy, n, yp1, ypn)
+    ex=int(ex[0])
+    ey=int(ey[0])
+
+    (yp1, ypn)=derivate(ix[:ex], iy[:ex])
+    splin=spline(ix[:ex], iy[:ex], ex, yp1, ypn)
     print(splin)
+    
+    (yp1, ypn)=derivate(ix[ex:], iy[ex:])
+    splin2=spline(ix[ex:], iy[ex:], ey, yp1, ypn)
+    print(splin2)
 
 if __name__ ==  '__main__':
     main()
