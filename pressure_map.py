@@ -1,0 +1,1 @@
+from splint import wings_interpolation
