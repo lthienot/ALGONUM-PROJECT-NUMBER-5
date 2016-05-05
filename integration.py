@@ -17,15 +17,12 @@ def deriv(f, step):
     return fprim
 
 
-def integration(filename, method, step):
-    (f1, f2) = sp.wings_interpolation(filename, step)
-    fprim1 = deriv(f1, step)
-    fprim2 = deriv(f2, step)
+def length(spline, method, step):
+    fprim = deriv(spline, step)
 
-    g1 = map(lambda x: sqrt( 1 + x**2 ), fprim1)
-    g2 = map(lambda x: sqrt( 1 + x**2 ), fprim2)
+    g = map(lambda x: sqrt( 1 + x**2 ), fprim)
 
-    return method(g1, step) + method(g2, step)
+    return method(g, step)
 
 
 def trapezium(f, step):
@@ -38,4 +35,10 @@ def trapezium(f, step):
 
     return I
 
-#print integration("DU84132V.DAT", trapezium, 10E-2)
+def test():
+    step = 10E-2
+    (spline1, spline2) = sp.wings_interpolation("DU84132V.DAT", step)
+    print "upper :" , length(spline1, trapezium, step)
+    print "lower :" , length(spline2, trapezium, step)
+
+test()
