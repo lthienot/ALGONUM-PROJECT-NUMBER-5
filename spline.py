@@ -6,13 +6,12 @@ from load_foil import load_foil
 
 def spline(x, y, n, yp1, ypn):
     """ The "spline" function takes 5 arguments :
-        x: table of real
-        y: table of real
-        n: integer
-        yp1: real
-        ypn: real
-        #### y2: table of real
-        Return y2, a table of real
+        - x: table of real, size n
+        - y: table of real, size n
+        - n: integer, size of the table x and y
+        - yp1: real
+        - ypn: real
+        Returns y2, a table of real of size n
     """
     y2 = [None]*n
     i = 2
@@ -51,24 +50,45 @@ def spline(x, y, n, yp1, ypn):
 
 
 def derivate(ix, iy):
+    """ The "derivate" function takes 2 arguments :
+        - ix: table of real
+        - iy: table of real
+        Returns 2 values:
+        - a1: real, the derivate of the first point of iy.
+        - an: real, the derivate of the last point of iy.
+    """
     n = len(ix) - 1
     a1 = (iy[1]-iy[0])/(ix[1]-ix[0])
-    an = (iy[n-1]-iy[n])/-(ix[n-1]-ix[n])
+    an = (iy[n-1]-iy[n])/(ix[n-1]-ix[n])
     return (a1, an)
     
-        
-def main():
-    (ex,ey,ix,iy) = load_foil("aaa.dat")
+
+def data_spline(file):
+    """ The "data_spline" function takes 1 argument :
+        - file: string, the name of the file which contains the data.
+        Returns 2 values:
+        - splin: table of real, the spline of the top of the the wing
+        - splin2: table of real, the spline of the bottom of the wing
+    """
+    (ex,ey,ix,iy) = load_foil(file)
     ex=int(ex[0])
     ey=int(ey[0])
 
     (yp1, ypn)=derivate(ix[:ex], iy[:ex])
+    #print(yp1, ypn)
     splin=spline(ix[:ex], iy[:ex], ex, yp1, ypn)
-    print(splin)
     
     (yp1, ypn)=derivate(ix[ex:], iy[ex:])
+    #print(yp1, ypn)
     splin2=spline(ix[ex:], iy[ex:], ey, yp1, ypn)
-    print(splin2)
+
+    return splin, splin2
+
+
+
+def main():
+    print(data_spline("aaa.dat"))
+
 
 if __name__ ==  '__main__':
     main()
