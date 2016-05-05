@@ -119,8 +119,10 @@ def splint_improved(xTable, yTable, nUpper, nLower, eps):
         (y,iUnderX,iOverX)=splint_aux(i,nLower,x,xTableLower,yTableLower,scdDerivTableLower,iOverX,iUnderX)
         yLower+=[y]
         i+=1
-
+        
     return yUpper,yLower
+
+
 
 def wings_interpolation(filename,eps):
     """ The "wings_interpolation" function takes 2 arguments :
@@ -128,12 +130,10 @@ def wings_interpolation(filename,eps):
         - eps: 
         Return ...
     """
-    #"DU84132V.DAT"
     (nx1,nx2,xTable,yTable) = load_foil(filename)
     nUpper=int(nx1[0])
     nLower=int(nx2[0])
     return splint_improved(xTable,yTable,nUpper,nLower,eps)
-
 
 
 
@@ -154,15 +154,15 @@ def display_wing(yUpper,yLower,eps):
     plt.ylim(-0.5,0.5)
     plt.plot(x[:(len(yUpper))],yUpper, linewidth=1.0)
     plt.plot(x[:(len(yLower))],yLower, linewidth=1.0)
-    #plt.show()
-    plt.savefig("bbb.png")
-    
+    plt.show()
+    #plt.savefig("DU84132V.png")
     
     
     
 def main():
     yUpper2,yLower2=wings_interpolation("DU84132V.DAT",0.001)
     display_wing(yUpper2,yLower2,0.001)
+
 
 
 if __name__ ==  '__main__':
