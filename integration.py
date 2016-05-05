@@ -41,4 +41,4 @@ def test():
     print "upper :" , length(spline1, trapezium, step)
     print "lower :" , length(spline2, trapezium, step)
 
-test()
+#test()
