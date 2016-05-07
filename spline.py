@@ -65,29 +65,41 @@ def derivate(ix, iy):
 
 def data_spline(file):
     """ The "data_spline" function takes 1 argument :
-        - file: string, the name of the file which contains the data.
-        Returns 2 values:
-        - splin: table of real, the spline of the top of the the wing
-        - splin2: table of real, the spline of the bottom of the wing
+        - file: string, the name of the file which contains the data to load
+        Returns 6 values:
+        - nUpper: integer, number of given values for the upper part
+        - nLower: integer, number of given values for the lower part
+        - xUpper: array of real, contains the abscissa of the points of the upper part
+        - xLower: array of real, contains the abscissa of the points of the lower part
+        - yUpper: array of real, contains the ordinate of the points of the upper part
+        - yLower: array of real, contains the ordinate of the points of the lower part
+        - splinUpper: array of real, the spline of the top of the the wing
+        - splinLower: array of real, the spline of the bottom of the wing
     """
-    (ex,ey,ix,iy) = load_foil(file)
-    ex=int(ex[0])
-    ey=int(ey[0])
+    (nUpper,nLower,ix,iy) = load_foil(file)
+    nUpper=int(nUpper[0])
+    nLower=int(nLower[0])
 
-    (yp1, ypn)=derivate(ix[:ex], iy[:ex])
-    #print(yp1, ypn)
-    splin=spline(ix[:ex], iy[:ex], ex, yp1, ypn)
+    #Initial table must be split into two parts: upper and lower part
+    xUpper = ix[:nUpper]
+    xLower = ix[nUpper:]
+    yUpper = iy[:nUpper]
+    yLower = iy[nUpper:]
     
-    (yp1, ypn)=derivate(ix[ex:], iy[ex:])
-    #print(yp1, ypn)
-    splin2=spline(ix[ex:], iy[ex:], ey, yp1, ypn)
+    #Calculates first derivative at points 1 and n for the 2 parts
+    (yp1, ypn)=derivate(xUpper, yUpper)
+    (yp1, ypn)=derivate(ix[nUpper:], yLower)
+    
+    #Computes second derivative
+    splineUpper=spline(xUpper, yUpper, nUpper, yp1, ypn)
+    splineLower=spline(ix[nUpper:], yLower, nLower, yp1, ypn)
 
-    return splin, splin2
+    return nUpper, nLower, xUpper, xLower, yUpper, yLower, splineUpper, splineLower
 
 
 
 def main():
-    print(data_spline("aaa.dat"))
+    print(data_spline("DU84132V.DAT"))
 
 
 if __name__ ==  '__main__':
