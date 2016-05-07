@@ -59,7 +59,7 @@ def derivate(ix, iy):
     """
     n = len(ix) - 1
     a1 = (iy[1]-iy[0])/(ix[1]-ix[0])
-    an = (iy[n-1]-iy[n])/(ix[n-1]-ix[n])
+    an = (iy[n]-iy[n-1])/(ix[n]-ix[n-1])
     return (a1, an)
     
 
@@ -112,11 +112,9 @@ def calculate_spline_data(xTable, yTable, nUpper, nLower):
 
 
 
-
 def main():
     print(spline_data("DU84132V.DAT"))
 
 
 if __name__ ==  '__main__':
     main()
-    
