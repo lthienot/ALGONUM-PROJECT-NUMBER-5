@@ -106,10 +106,13 @@ def display_wing(yUpper,yLower,eps=0.001):
         x+=[x[i]+eps]
         i+=1
     plt.ylim(-0.5,0.5)
+    plt.title("Refined airfoil")
+    plt.xlabel("airfoil x-coordinates")
+    plt.ylabel("airfoil y-coordinates")
     plt.plot(x[:(len(yUpper))],yUpper, linewidth=1.0)
     plt.plot(x[:(len(yLower))],yLower, linewidth=1.0)
     plt.show()
-    #plt.savefig("DU84132V.png")
+    plt.savefig("DU84132V.png")
 
 
 
