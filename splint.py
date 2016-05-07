@@ -8,6 +8,7 @@ import math as m
 import numpy as np
 from spline import spline_data, calculate_spline_data
 from load_foil import load_foil
+from scipy.interpolate import interp1d
 
 
 def splint_aux(n,x,xTable,yTable,scdDerivTable,iOverX,iUnderX):
@@ -46,7 +47,7 @@ def splint_improved(xTable, yTable, nUpper, nLower, eps=0.001):
         - yTable: array of real, tabulating the function (yTable_i=f(xTable_i))
         - nUpper: integer, number of given values for the upper part
         - nLower: integer, number of given values for the lower part
-        - eps: integer, step for x
+        - eps: real, step for x
          Returns tables of cubic-spline interpolated values y, for x from 0 to 1 (step eps), for the upper and lower part
     """
     (nUpper,nLower,xTableUpper,xTableLower, yTableUpper, yTableLower, scdDerivTableUpper, scdDerivTableLower) = calculate_spline_data(xTable, yTable, nUpper, nLower)
@@ -82,7 +83,7 @@ def splint_improved(xTable, yTable, nUpper, nLower, eps=0.001):
 def wings_interpolation(filename,eps=0.001):
     """ The "wings_interpolation" function takes 2 arguments :
         - filename: string, the name of the file to load
-        - eps: integer, step for x
+        - eps: real, step for x
         Returns tables of cubic-spline interpolated values y, for x from 0 to 1 (step eps), for the upper and lower part.
     """
     (nUpper,nLower,ix,iy) = load_foil(filename)
@@ -97,29 +98,29 @@ def display_wing(yUpper,yLower,eps=0.001):
     """ The "display_wing" function takes 3 arguments :
         - yUpper: array of real, the list of ordinate for the upper wing
         - yLower: array of real, the list of ordinate for the lower wing
-        - eps: integer, step for the 2 arrays
-        Displays the figure
+        - eps: real, step for the 2 arrays
+        Displays the wing
     """
     x=[0]
     i=0
     while (x[i]<1):
         x+=[x[i]+eps]
         i+=1
-    plt.ylim(-0.5,0.5)
+    plt.ylim(-0.3,0.3)
     plt.title("Refined airfoil")
     plt.xlabel("airfoil x-coordinates")
     plt.ylabel("airfoil y-coordinates")
     plt.plot(x[:(len(yUpper))],yUpper, linewidth=1.0)
     plt.plot(x[:(len(yLower))],yLower, linewidth=1.0)
     plt.show()
-    plt.savefig("DU84132V.png")
+    #plt.savefig("DU84132V.png")
 
 
 
 def test_wing(filename, eps=0.001):
     """ The "test_wing" function takes 2 arguments :
         - filename: string, the name of the file to load
-        - eps: integer, step for x
+        - eps: real, step for x
         Checks that every yTable data are consonant with the yUpper and yLower arrays data
     """
     (nx1,nx2,xTable,yTable) = load_foil(filename)
@@ -143,16 +144,34 @@ def test_wing(filename, eps=0.001):
     
     
     
+    
+def test_wing2(filename):
+    """ The "test_wing2" function takes 1 argument :
+        - filename: string, the name of the file to load
+        Displays the wing calculated with the interpolation of the scipy library.
+    """
+    (nUpper,nLower,xTableUpper,xTableLower, yTableUpper, yTableLower, scdDerivTableUpper, scdDerivTableLower) = spline_data(filename)
+
+    up = interp1d(xTableUpper, yTableUpper)
+    low = interp1d(xTableLower, yTableLower)
+    
+    plt.plot(xTableUpper, up(xTableUpper), linewidth=1.0)
+    plt.plot(xTableLower, low(xTableUpper), linewidth=1.0)
+    plt.show()
+    #plt.savefig(filename+"_lib.png")
+    
+
+    
 def main():
     filename="DU84132V.DAT"
     eps=0.001
     yUpper2,yLower2=wings_interpolation(filename, eps)
     display_wing(yUpper2, yLower2, eps)
     test_wing(filename)
+    test_wing2(filename)
 
 
 
 if __name__ ==  '__main__':
     main()
     
-
