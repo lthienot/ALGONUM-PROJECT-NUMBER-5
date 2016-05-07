@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 import math as m
 import numpy as np
-from spline import spline, derivate, data_spline
+from spline import data_spline
 from load_foil import load_foil
 
 def spline_interpolation(xa,ya,y2a,n,x):
@@ -45,57 +45,44 @@ def spline_interpolation(xa,ya,y2a,n,x):
 
 
 
-def splint_aux(i,n,x,xTable,yTable,scdDerivTable,iOverX,iUnderX):
-    """ The "splint__aux" function takes 8 arguments :
-        - i: 
-        - n: 
-        - x: 
-        - xTable: 
-        - yTable: 
-        - scdDerivTable: 
+def splint_aux(n,x,xTable,yTable,scdDerivTable,iOverX,iUnderX):
+    """ The "splint_aux" function takes 8 arguments :
+        - n: integer, size of xTable, yTable and scdDerivTable (the 3 arrays have the same size)
+        - x: real, the abscissa where y is calculated
+        - xTable: array of real, contains the abscissa of the points
+        - yTable: array of real, contains the ordinate of the points
+        - scdDerivTable: array of real, contains the spline corresponding at the xTable and the yTable.
         - iOverX: 
         - iUnderX: 
         Returns 3 values:
-        -
+        - y: real, the calculated ordinate of the given point x
         - iUnderX
         - iOverX
-        Splint_aux is called by splint_improved
     """
     a=0.
     b=0.
     DiffOverUnderX=0.
-    
-    if (xTable[iOverX]<=x[i]):
+    if (xTable[iOverX]<=x):
         iOverX+=1
         iUnderX+=1
     assert(iOverX<n)
         
     DiffOverUnderX=float(xTable[iOverX])-float(xTable[iUnderX])
-    a=(xTable[iOverX]-x[i])/DiffOverUnderX
-    b=(x[i]-xTable[iUnderX])/DiffOverUnderX
+    a=(xTable[iOverX]-x)/DiffOverUnderX
+    b=(x-xTable[iUnderX])/DiffOverUnderX
     
     return a*yTable[iUnderX]+b*yTable[iOverX]+(((a**3)-a)*scdDerivTable[iOverX])*(DiffOverUnderX**2)/6.0 , iUnderX, iOverX
 
-def splint_improved(xTable, yTable, nUpper, nLower, eps):
-    """ The "splint_improved" function takes 5 arguments :
-        - xTable: array the considered points
-        - yTable: array tabulating the function (yTable_i=f(xTable_i))
-        - nUpper: integer, number of given values for the upper part
-        - nLower: integer, number of given values for the lower part
+
+
+def wings_interpolation(filename,eps):
+    """ The "wings_interpolation" function takes 2 arguments :
+        - filename: string, the name of the file to load
         - eps: integer, step for x
-         Returns tables of cubic-spline interpolated values y, for x from 0 to 1 (step eps), for the upper and lower part
+        Returns tables of cubic-spline interpolated values y, for x from 0 to 1 (step eps), for the upper and lower part.
     """
-    xTableUpper=xTable[:nUpper] #Initial table must be split into two parts: upper and lower part
-    xTableLower=xTable[nUpper:]
-    yTableUpper=yTable[:nUpper]
-    yTableLower=yTable[nUpper:]
+    (nUpper,nLower,xTableUpper,xTableLower, yTableUpper, yTableLower, scdDerivTableUpper, scdDerivTableLower) = data_spline(filename)
 
-    (fstDeriv1Upper, fstDerivnUpper)=derivate(xTableUpper,yTableUpper) #Calculates first derivative at points 1 and n
-    (fstDeriv1Lower, fstDerivnLower)=derivate(xTableLower,yTableLower) #Calculates first derivative at points 1 and n
-
-    scdDerivTableUpper=spline(xTableUpper,yTableUpper,nUpper,fstDeriv1Upper,fstDerivnUpper) #Computes second derivative
-    scdDerivTableLower=spline(xTableLower,yTableLower,nLower,fstDeriv1Lower,fstDerivnLower)
-    
     yUpper=[] #Final interpolation of the upper part
     yLower=[] #Final interpolation of the lower part
     x=[0]
@@ -105,7 +92,7 @@ def splint_improved(xTable, yTable, nUpper, nLower, eps):
     iOverX=1
     i=0
     while (x[i]<1):
-        (y,iUnderX,iOverX)=splint_aux(i,nUpper,x,xTableUpper,yTableUpper,scdDerivTableUpper,iOverX,iUnderX)
+        (y,iUnderX,iOverX)=splint_aux(nUpper,x[i],xTableUpper,yTableUpper,scdDerivTableUpper,iOverX,iUnderX)
         yUpper+=[y]
         x+=[x[i]+eps]
         i+=1
@@ -116,7 +103,7 @@ def splint_improved(xTable, yTable, nUpper, nLower, eps):
     iUnderX=0
     i=0
     while (i<len(x)):
-        (y,iUnderX,iOverX)=splint_aux(i,nLower,x,xTableLower,yTableLower,scdDerivTableLower,iOverX,iUnderX)
+        (y,iUnderX,iOverX)=splint_aux(nLower,x[i],xTableLower,yTableLower,scdDerivTableLower,iOverX,iUnderX)
         yLower+=[y]
         i+=1
         
@@ -124,27 +111,12 @@ def splint_improved(xTable, yTable, nUpper, nLower, eps):
 
 
 
-def wings_interpolation(filename,eps):
-    """ The "wings_interpolation" function takes 2 arguments :
-        - filename: 
-        - eps: 
-        Return ...
-    """
-    (nx1,nx2,xTable,yTable) = load_foil(filename)
-    nUpper=int(nx1[0])
-    nLower=int(nx2[0])
-    return splint_improved(xTable,yTable,nUpper,nLower,eps)
-
-
-
 def display_wing(yUpper,yLower,eps):
-    """ The "display_wing" function takes 5 arguments :
-        - x: table of real, size n
-        - y: table of real, size n
-        - n: integer, size of the table x and y
-        - yp1: real
-        - ypn: real
-        Return y2, a table of real of size n
+    """ The "display_wing" function takes 3 arguments :
+        - yUpper: array of real, the list of ordinate for the upper wing
+        - yLower: array of real, the list of ordinate for the lower wing
+        - eps: integer, step for the 2 arrays
+        Displays the figure
     """
     x=[0]
     i=0
@@ -154,8 +126,8 @@ def display_wing(yUpper,yLower,eps):
     plt.ylim(-0.5,0.5)
     plt.plot(x[:(len(yUpper))],yUpper, linewidth=1.0)
     plt.plot(x[:(len(yLower))],yLower, linewidth=1.0)
-    plt.show()
-    #plt.savefig("DU84132V.png")
+    #plt.show()
+    plt.savefig("DU84132V.png")
     
     
     
