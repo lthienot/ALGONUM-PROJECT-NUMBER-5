@@ -6,43 +6,8 @@ import matplotlib.pyplot as plt
 
 import math as m
 import numpy as np
-from spline import data_spline
+from spline import spline_data, calculate_spline_data
 from load_foil import load_foil
-
-def spline_interpolation(xa,ya,y2a,n,x):
-    """ The "spline_interpolation" function takes 5 arguments :
-        - xa: 
-        - ya: 
-        - y2a: 
-        - n: 
-        - x: 
-        Returns ...
-    """
-    # int k, khi, klo
-    # float a, b,h
-    a=0.
-    b=0.
-    h=0.
-
-    k=0
-    klo=0
-    khi=n-1
-    
-    while (khi-klo >1):
-        k=(khi+klo)/2
-        if (xa[k] > x):
-            khi=k
-        else:
-            klo=k
-    h=float(xa[khi])-float(xa[klo])
-    if (h == 0.0):
-        raise ("Bad xa input to routine splint")
-    a=(xa[khi]-x)/h
-    b=(x-xa[klo])/h
-    assert(khi<n)
-    assert(klo<n)
-    return a*ya[klo]+b*ya[khi]+(((a**3)-a)*y2a[khi])*(h**2)/6.0
-
 
 
 def splint_aux(n,x,xTable,yTable,scdDerivTable,iOverX,iUnderX):
@@ -75,18 +40,21 @@ def splint_aux(n,x,xTable,yTable,scdDerivTable,iOverX,iUnderX):
 
 
 
-def wings_interpolation(filename,eps):
-    """ The "wings_interpolation" function takes 2 arguments :
-        - filename: string, the name of the file to load
+def splint_improved(xTable, yTable, nUpper, nLower, eps=0.001):
+    """ The "splint_improved" function takes 5 arguments :
+        - xTable: array of real, the considered points
+        - yTable: array of real, tabulating the function (yTable_i=f(xTable_i))
+        - nUpper: integer, number of given values for the upper part
+        - nLower: integer, number of given values for the lower part
         - eps: integer, step for x
-        Returns tables of cubic-spline interpolated values y, for x from 0 to 1 (step eps), for the upper and lower part.
+         Returns tables of cubic-spline interpolated values y, for x from 0 to 1 (step eps), for the upper and lower part
     """
-    (nUpper,nLower,xTableUpper,xTableLower, yTableUpper, yTableLower, scdDerivTableUpper, scdDerivTableLower) = data_spline(filename)
+    (nUpper,nLower,xTableUpper,xTableLower, yTableUpper, yTableLower, scdDerivTableUpper, scdDerivTableLower) = calculate_spline_data(xTable, yTable, nUpper, nLower)
 
     yUpper=[] #Final interpolation of the upper part
     yLower=[] #Final interpolation of the lower part
     x=[0]
-
+    
     ### Upper part:
     iUnderX=0
     iOverX=1
@@ -111,7 +79,21 @@ def wings_interpolation(filename,eps):
 
 
 
-def display_wing(yUpper,yLower,eps):
+def wings_interpolation(filename,eps=0.001):
+    """ The "wings_interpolation" function takes 2 arguments :
+        - filename: string, the name of the file to load
+        - eps: integer, step for x
+        Returns tables of cubic-spline interpolated values y, for x from 0 to 1 (step eps), for the upper and lower part.
+    """
+    (nUpper,nLower,ix,iy) = load_foil(filename)
+    nUpper=int(nUpper[0])
+    nLower=int(nLower[0])
+    
+    return splint_improved(ix, iy, nUpper, nLower, eps)
+
+
+
+def display_wing(yUpper,yLower,eps=0.001):
     """ The "display_wing" function takes 3 arguments :
         - yUpper: array of real, the list of ordinate for the upper wing
         - yLower: array of real, the list of ordinate for the lower wing
@@ -126,14 +108,44 @@ def display_wing(yUpper,yLower,eps):
     plt.ylim(-0.5,0.5)
     plt.plot(x[:(len(yUpper))],yUpper, linewidth=1.0)
     plt.plot(x[:(len(yLower))],yLower, linewidth=1.0)
-    #plt.show()
-    plt.savefig("DU84132V.png")
+    plt.show()
+    #plt.savefig("DU84132V.png")
+
+
+
+def test_wing(filename, eps=0.001):
+    """ The "test_wing" function takes 2 arguments :
+        - filename: string, the name of the file to load
+        - eps: integer, step for x
+        Checks that every yTable data are consonant with the yUpper and yLower arrays data
+    """
+    (nx1,nx2,xTable,yTable) = load_foil(filename)
+    nUpper=int(nx1[0])
+    nLower=int(nx2[0])
+    yUpper,yLower = splint_improved(xTable, yTable, nUpper, nLower, eps)
+
+    x=[0]
+    i=0
+    while (x[i]<1):
+        x+=[x[i]+eps]
+        i+=1
+    x=x[:(len(yUpper))]
+    for i in range (nUpper):
+        if (xTable[i] in x):
+            assert(yTable[i] in yUpper)
+    for i in range (nUpper,nLower,1):
+        if (xTable[i] in x):
+            assert(yTable[i] in yLower)
+    print("Test interpolation : PASSED.")
     
     
     
 def main():
-    yUpper2,yLower2=wings_interpolation("DU84132V.DAT",0.001)
-    display_wing(yUpper2,yLower2,0.001)
+    filename="DU84132V.DAT"
+    eps=0.001
+    yUpper2,yLower2=wings_interpolation(filename, eps)
+    display_wing(yUpper2, yLower2, eps)
+    test_wing(filename)
 
 
 

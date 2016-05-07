@@ -63,10 +63,27 @@ def derivate(ix, iy):
     return (a1, an)
     
 
-def data_spline(file):
-    """ The "data_spline" function takes 1 argument :
+
+def spline_data(file):
+    """ The "spline_data" function takes 1 argument :
         - file: string, the name of the file which contains the data to load
-        Returns 6 values:
+        Returns 8 values given by the function "calculate_spline_data", just with the name of the file in argument.
+    """
+    (nUpper,nLower,ix,iy) = load_foil(file)
+    nUpper=int(nUpper[0])
+    nLower=int(nLower[0])
+    
+    return calculate_spline_data(ix, iy, nUpper, nLower)
+
+
+
+def calculate_spline_data(xTable, yTable, nUpper, nLower):
+    """ The "calculate_spline_data" function takes 4 arguments :
+        - xTable: array of real, the considered points
+        - yTable: array of real, tabulating the function (yTable_i=f(xTable_i))
+        - nUpper: integer, number of given values for the upper part
+        - nLower: integer, number of given values for the lower part
+        Returns 8 values:
         - nUpper: integer, number of given values for the upper part
         - nLower: integer, number of given values for the lower part
         - xUpper: array of real, contains the abscissa of the points of the upper part
@@ -76,30 +93,28 @@ def data_spline(file):
         - splinUpper: array of real, the spline of the top of the the wing
         - splinLower: array of real, the spline of the bottom of the wing
     """
-    (nUpper,nLower,ix,iy) = load_foil(file)
-    nUpper=int(nUpper[0])
-    nLower=int(nLower[0])
 
     #Initial table must be split into two parts: upper and lower part
-    xUpper = ix[:nUpper]
-    xLower = ix[nUpper:]
-    yUpper = iy[:nUpper]
-    yLower = iy[nUpper:]
+    xUpper = xTable[:nUpper]
+    xLower = xTable[nUpper:]
+    yUpper = yTable[:nUpper]
+    yLower = yTable[nUpper:]
     
     #Calculates first derivative at points 1 and n for the 2 parts
     (yp1, ypn)=derivate(xUpper, yUpper)
-    (yp1, ypn)=derivate(ix[nUpper:], yLower)
+    (yp1, ypn)=derivate(xTable[nUpper:], yLower)
     
     #Computes second derivative
     splineUpper=spline(xUpper, yUpper, nUpper, yp1, ypn)
-    splineLower=spline(ix[nUpper:], yLower, nLower, yp1, ypn)
+    splineLower=spline(xTable[nUpper:], yLower, nLower, yp1, ypn)
 
     return nUpper, nLower, xUpper, xLower, yUpper, yLower, splineUpper, splineLower
 
 
 
+
 def main():
-    print(data_spline("DU84132V.DAT"))
+    print(spline_data("DU84132V.DAT"))
 
 
 if __name__ ==  '__main__':
