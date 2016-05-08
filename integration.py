@@ -1,3 +1,9 @@
+# coding: utf-8
+
+import matplotlib as ma
+ma.use('Agg')
+import matplotlib.pyplot as plt
+
 from math import *
 import splint as sp
 
@@ -31,6 +37,32 @@ def length(spline, method, step=0.001):
 
 
 
+def left_rect(f, step=0.001):
+    """ The "left_rect" function takes 2 arguments :
+        - f: array of real, the list of ordinate for the f function
+        - step: real, step for x
+        Returns I, the approximated integral of f
+    """
+    I = 0 
+    for i in range(len(f)): 
+        I += step * f[i]
+    return I
+
+
+
+def right_rect(f, step=0.001):
+    """ The "right_rect" function takes 2 arguments :
+        - f: array of real, the list of ordinate for the f function
+        - step: real, step for x
+        Returns I, the approximated integral of f
+    """
+    I = 0 
+    for i in range(len(f)-1): 
+        I += step * f[i+1]
+    return I
+
+
+
 def trapezium(f, step=0.001):
     """ The "trapezium" function takes 2 arguments :
         - f: array of real, the list of ordinate for the f function
@@ -42,6 +74,7 @@ def trapezium(f, step=0.001):
     for i in range(len(f)-1): 
         I += step * (f[i] + f[i+1]) / 2
     return I
+
 
 
 
@@ -65,19 +98,69 @@ def simpson(f, step=0.001):
     return I
 
 
+def compare_rules(file, epsMin=0.05, epsMax=0.0001):
+    """ The "compare_rules" function takes 3 arguments :
+        - file: string, the name of the file which contains the data to load
+        - epsMin: real, the higher interval to compute lengths with different rules
+        - epsMax: real, the lower interval to compute lengths with different rules
+        Displays a figure comparing the convergence of the different rules.
+    """
+    x=[epsMin]
+
+    arrTrapez=[]
+    arrSimpson=[]
+    arrLRect=[]
+    arrRRect=[]
+    
+    while (epsMin>epsMax):
+        (spline1, spline2) = sp.wings_interpolation(file, epsMin)
+        arrTrapez+=[length(spline1, trapezium, epsMin)]
+        arrSimpson+=[length(spline1, simpson, epsMin)]
+        arrLRect+=[length(spline1, left_rect, epsMin)]
+        arrRRect+=[length(spline1, right_rect, epsMin)]
+        epsMin=epsMin-epsMax
+        x+=[epsMin]
+
+    x=x[:(len(x)-1)]
+    
+    plt.xlim(x[0], x[len(x)-1])
+    plt.title("Convergence speed of different rules")
+
+    plt.xlabel("Interval size")
+    plt.ylabel("Length")
+    plt.plot(x,arrTrapez, linewidth=1.0, label='Trapezium')
+    plt.plot(x,arrSimpson, linewidth=1.0, label='Simpson')
+    plt.plot(x,arrLRect, linewidth=1.0, label='Left Rectangle')
+    plt.plot(x,arrRRect, linewidth=1.0, label='Right Rectangle')
+    
+    plt.legend(
+           scatterpoints=1,
+           loc='better')
+    
+    plt.show()
+    #plt.savefig("compare_rules.png")
+    
+    
 
 def test():
     file = "DU84132V.DAT"
     step = 10E-3        # Step have to be lower than the number of point given by the .dat file in order to keep a good precision (step <= 1/load_foil(file)[0] and step <= 1/load_foil(file)[1])
 
     (spline1, spline2) = sp.wings_interpolation(file, step)
-    print "Upper:" , length(spline1, trapezium, step)
-    print "Lower:" , length(spline2, trapezium, step)
-
-    print "Upper:" , length(spline1, simpson, step)
-    print "Lower:" , length(spline2, simpson, step)
-
-
+    print("Trapezium rule:")
+    print "- Upper:" , length(spline1, trapezium, step)
+    print "- Lower:" , length(spline2, trapezium, step)
+    print("Simpson rule:")
+    print "- Upper:" , length(spline1, simpson, step)
+    print "- Lower:" , length(spline2, simpson, step)
+    print("Left rectangle rule:")
+    print "- Upper:" , length(spline1, left_rect, step)
+    print "- Lower:" , length(spline2, left_rect, step)
+    print("Right rectangle rule:")
+    print "- Upper:" , length(spline1, right_rect, step)
+    print "- Lower:" , length(spline2, right_rect, step)
+    
+    compare_rules(file)
 
 if __name__ ==  '__main__':
     test()
