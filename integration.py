@@ -3,9 +3,9 @@ import splint as sp
 
 def deriv(f, step=0.001):
     """ The "deriv" function takes 2 arguments :
-        - f: array of real, step is the space between two adjacent abscissas
+        - f: array of real, the list of ordinate for the f function, with x the abscissa
         - step: real, step for x
-        Returns fprim, the derivate of the function f ... <- TO CHECK
+        Returns fprim, the derivate of points of the function f
     """
     fprim=[]
     fprim.append( (f[1] - f[0]) / step ) # First special case: derivative of the function on the first point.
@@ -20,10 +20,10 @@ def deriv(f, step=0.001):
 
 def length(spline, method, step=0.001):
     """ The "length" function takes 3 arguments :
-        - spline: array of real, contains the ordinate of the points of the given part
-        - method: function to use ... <- TO CHECK
+        - spline: array of real, contains the ordinate of the f function
+        - method: function to use to compute the length
         - step: real, step for x
-        Returns ... <- TO CHECK
+        Returns the length of the given part of the plane curve
     """
     fprim = deriv(spline, step)
     g = map(lambda x: sqrt( 1 + x**2 ), fprim)
@@ -33,9 +33,9 @@ def length(spline, method, step=0.001):
 
 def trapezium(f, step=0.001):
     """ The "trapezium" function takes 2 arguments :
-        - f: ... <- TO CHECK
+        - f: array of real, the list of ordinate for the f function
         - step: real, step for x
-        Returns I, ... <- TO CHECK
+        Returns I, the approximated integral of f
     """
 # midpoint rule approximation method of an integral
     I = 0 
@@ -45,11 +45,35 @@ def trapezium(f, step=0.001):
 
 
 
+def simpson(f, step=0.001):
+    """ The "simpson" function takes 2 arguments :
+        - f: array of real, the list of ordinate for the f function
+        - step: real, step for x
+        Returns I, the approximated integral of f
+    """
+    I = 0
+    n=len(f)-1
+
+    sumA=0
+    for i in range(1, n/2):
+        sumA+= f[2*i]
+    sumB=0
+    for i in range(1, n/2+1):
+        sumB+= f[2*i-1]
+    
+    I= (step/3)*(f[0] + 2*sumA + 4*sumB + f[n])
+    return I
+
+
+
 def test():
     step = 10E-2
     (spline1, spline2) = sp.wings_interpolation("DU84132V.DAT", step)
     print "Upper:" , length(spline1, trapezium, step)
     print "Lower:" , length(spline2, trapezium, step)
+    
+    print "Upper:" , length(spline1, simpson, step)
+    print "Lower:" , length(spline2, simpson, step)
 
 
 
