@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import matplotlib as ma
-#ma.use('Agg')
+###########ma.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as col
@@ -141,12 +141,12 @@ def main():
     yUpper,yLower=wings_interpolation("DU84132V.DAT",xEps)
     hMin,hMax=height(yUpper,yLower)
     curves=[]
-    lambdaEpsUpper=0.01
-    lambdaEpsLower=0.01
-    curves+=compute_curves(yUpper,lambdaEpsUpper,hMax)
-    curves+=compute_curves(yLower,lambdaEpsLower,hMin)
+#    lambdaEpsUpper=0.01
+ #   lambdaEpsLower=0.01
+    curves+=compute_curves(yUpper,xEps,hMax)
+    curves+=compute_curves(yLower,xEps,hMin)
     mat_pressure(curves, xEps, 3*hMax,3*hMin)
- #   display_curves(yUpper,yLower,curves,xEps)
+    display_curves(yUpper,yLower,curves,xEps)
 
 
 
