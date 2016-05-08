@@ -11,33 +11,30 @@ from load_foil import load_foil
 from scipy.interpolate import interp1d
 
 
-def splint_aux(n,x,xTable,yTable,scdDerivTable,iOverX,iUnderX):
+def splint_aux(n,x,xTable,yTable,scdDerivTable,iOverX):
     """ The "splint_aux" function takes 8 arguments :
         - n: integer, size of xTable, yTable and scdDerivTable (the 3 arrays have the same size)
         - x: real, the abscissa where y is calculated
         - xTable: array of real, contains the abscissa of the points
         - yTable: array of real, contains the ordinate of the points
         - scdDerivTable: array of real, contains the spline corresponding at the xTable and the yTable.
-        - iOverX: 
-        - iUnderX: 
+        - iOverX: integer, current indice to access abscissa and ordinate in xTable and yTable over (and under with iOverX-1) the approximated x value.
         Returns 3 values:
-        - y: real, the calculated ordinate of the given point x
-        - iUnderX
-        - iOverX
+        - y: real, the approximated ordinate to the given point x
+        - iOverX: integer, current indice updated (then, x is between xTable[iOverX-1] and xTable[iOverX])
     """
     a=0.
     b=0.
     DiffOverUnderX=0.
     if (xTable[iOverX]<=x):
         iOverX+=1
-        iUnderX+=1
     assert(iOverX<n)
         
-    DiffOverUnderX=float(xTable[iOverX])-float(xTable[iUnderX])
+    DiffOverUnderX=float(xTable[iOverX])-float(xTable[iOverX-1])
     a=(xTable[iOverX]-x)/DiffOverUnderX
-    b=(x-xTable[iUnderX])/DiffOverUnderX
+    b=(x-xTable[iOverX-1])/DiffOverUnderX
     
-    return a*yTable[iUnderX]+b*yTable[iOverX]+(((a**3)-a)*scdDerivTable[iOverX])*(DiffOverUnderX**2)/6.0 , iUnderX, iOverX
+    return a*yTable[iOverX-1]+b*yTable[iOverX]+(((a**3)-a)*scdDerivTable[iOverX])*(DiffOverUnderX**2)/6.0 , iOverX
 
 
 
@@ -57,11 +54,10 @@ def splint_improved(xTable, yTable, nUpper, nLower, eps=0.001):
     x=[0]
     
     ### Upper part:
-    iUnderX=0
     iOverX=1
     i=0
     while (x[i]<1):
-        (y,iUnderX,iOverX)=splint_aux(nUpper,x[i],xTableUpper,yTableUpper,scdDerivTableUpper,iOverX,iUnderX)
+        (y,iOverX)=splint_aux(nUpper,x[i],xTableUpper,yTableUpper,scdDerivTableUpper,iOverX)
         yUpper+=[y]
         x+=[x[i]+eps]
         i+=1
@@ -69,10 +65,9 @@ def splint_improved(xTable, yTable, nUpper, nLower, eps=0.001):
 
     ### Lower part:
     iOverX=1
-    iUnderX=0
     i=0
     while (i<len(x)):
-        (y,iUnderX,iOverX)=splint_aux(nLower,x[i],xTableLower,yTableLower,scdDerivTableLower,iOverX,iUnderX)
+        (y,iOverX)=splint_aux(nLower,x[i],xTableLower,yTableLower,scdDerivTableLower,iOverX)
         yLower+=[y]
         i+=1
         
@@ -106,7 +101,7 @@ def display_wing(yUpper,yLower,eps=0.001):
     while (x[i]<1):
         x+=[x[i]+eps]
         i+=1
-    plt.ylim(-0.3,0.3)
+    plt.ylim(-0.13,0.33)
     plt.title("Refined airfoil")
     plt.xlabel("airfoil x-coordinates")
     plt.ylabel("airfoil y-coordinates")
