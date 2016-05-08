@@ -44,7 +44,7 @@ def left_rect(f, step=0.001):
         Returns I, the approximated integral of f
     """
     I = 0 
-    for i in range(len(f)): 
+    for i in range(len(f)-1): 
         I += step * f[i]
     return I
 
@@ -138,7 +138,7 @@ def compare_rules(file, epsMin=0.05, epsMax=0.0001):
            loc='better')
     
     plt.show()
-    #plt.savefig("compare_rules.png")
+    plt.savefig("compare_rules.png")
     
     
 
