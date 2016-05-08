@@ -24,7 +24,6 @@ def height(yUpper,yLower):
             hMax=yUpper[i]
         if yLower[i]<hMin:
             hMin=yLower[i]
-    print(hMin, hMax)
     return hMin,hMax
 
 
@@ -60,7 +59,7 @@ def display_curves(yUpper,yLower,curves,xEps):
     """ The "compute_curves" function takes 4 arguments :
         - yUpper: array of real, the list of ordinate for the upper wing
         - yLower: array of real, the list of ordinate for the lower wing
-        - curves:
+        - curves: array of 1/lambdEps arrays. Each array represent the list of ordinates of one curve.
         - xEps: real, step for x
         Displays the airflow below and above the wing
     """
@@ -70,8 +69,8 @@ def display_curves(yUpper,yLower,curves,xEps):
         x+=[x[i]+xEps]
         i+=1
     x=x[:(len(x)-1)]
-    
-    plt.ylim(-0.13,0.33)
+    hMin,hMax=height(yUpper,yLower)
+    plt.ylim(3*hMin,3*hMax)
     plt.title("Laminar flow above and below the wing")
     plt.xlabel("airfoil x-coordinates")
     plt.ylabel("airfoil y-coordinates")
