@@ -117,20 +117,21 @@ def mat_pressure(curves,eps,hmax,hmin):
             mat[i][j]=(mat[i][j]-mini)*(256/(maxi-mini))
 
     c_dict_thermal = [
-                '#000000', # noir
-                '#0000ff', # bleu
+                '#ffffff', # noir
+                '#ff0000', # bleu
                 '#00ffff', # cyan
                 '#00ff00', # vert
                 '#ffff00', # jaune
-                '#ff0000', # rouge
-                '#ffffff'  # blanc
+                '#0000ff', # rouge
+                '#000000'  # blanc
         ]
 
     c_map_thermal = col.LinearSegmentedColormap.from_list('thermal', c_dict_thermal,  N=256, gamma=1.0)
     cm.register_cmap(cmap=c_map_thermal)
 
    
-
+    plt.ylim(0,120)
+    plt.xlim(0,100,0.1)
     plt.imshow(mat, interpolation='none', cmap='thermal')
     plt.show
     plt.savefig("mat.png")                   
@@ -145,8 +146,8 @@ def main():
     curves+=compute_curves(yUpper,lambdaEpsUpper,hMax)
     curves+=compute_curves(yLower,lambdaEpsLower,hMin)
     mat_pressure(curves, xEps, 3*hMax,3*hMin)
-#    display_curves(yUpper,yLower,curves,xEps)
-#    matrice_pressure(curves, xEps, hMax,hMin)
+ #   display_curves(yUpper,yLower,curves,xEps)
+
 
 
 if __name__ ==  '__main__':
