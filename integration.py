@@ -138,7 +138,7 @@ def compare_rules(file, epsMin=0.05, epsMax=0.0001):
            loc='better')
     
     plt.show()
-    plt.savefig("compare_rules.png")
+    #plt.savefig("compare_rules.png")
     
     
 
