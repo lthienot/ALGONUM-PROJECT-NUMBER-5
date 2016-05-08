@@ -106,7 +106,7 @@ def mat_pressure(curves,eps,hmax,hmin):
                     sum+=(curves_length[k])
             if (nbvalues==0):
                 nbvalues=1
-            mat[j][i]=(sum/nbvalues)
+            mat[j][i]=(sum/nbvalues)**2
             if (mat[j][i]>max):
                 maxi=mat[j][i]
             if(mat[j][i]<min):
