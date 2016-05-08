@@ -67,11 +67,13 @@ def simpson(f, step=0.001):
 
 
 def test():
-    step = 10E-2
-    (spline1, spline2) = sp.wings_interpolation("DU84132V.DAT", step)
+    file = "DU84132V.DAT"
+    step = 10E-3        # Step have to be lower than the number of point given by the .dat file in order to keep a good precision (step <= 1/load_foil(file)[0] and step <= 1/load_foil(file)[1])
+
+    (spline1, spline2) = sp.wings_interpolation(file, step)
     print "Upper:" , length(spline1, trapezium, step)
     print "Lower:" , length(spline2, trapezium, step)
-    
+
     print "Upper:" , length(spline1, simpson, step)
     print "Lower:" , length(spline2, simpson, step)
 
