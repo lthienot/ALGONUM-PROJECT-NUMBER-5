@@ -101,12 +101,12 @@ def calculate_spline_data(xTable, yTable, nUpper, nLower):
     yLower = yTable[nUpper:]
     
     #Calculates first derivative at points 1 and n for the 2 parts
-    (yp1, ypn)=derivate(xUpper, yUpper)
-    (yp1, ypn)=derivate(xTable[nUpper:], yLower)
+    (yp1Up, ypnUp)=derivate(xUpper, yUpper)
+    (yp1Low, ypnLow)=derivate(xTable[nUpper:], yLower)
     
     #Computes second derivative
-    splineUpper=spline(xUpper, yUpper, nUpper, yp1, ypn)
-    splineLower=spline(xTable[nUpper:], yLower, nLower, yp1, ypn)
+    splineUpper=spline(xUpper, yUpper, nUpper, yp1Up, ypnUp)
+    splineLower=spline(xTable[nUpper:], yLower, nLower, yp1Low, ypnLow)
 
     return nUpper, nLower, xUpper, xLower, yUpper, yLower, splineUpper, splineLower
 
