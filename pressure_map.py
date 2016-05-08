@@ -1,12 +1,16 @@
 # coding: utf-8
 
 import matplotlib as ma
-ma.use('Agg')
+#ma.use('Agg')
 import matplotlib.pyplot as plt
-
+import matplotlib.cm as cm
+import matplotlib.colors as col
 import math as m
 import numpy as np
 from splint import wings_interpolation
+from integration import length
+from integration import simpson
+from integration import trapezium
 
 def height(yUpper,yLower):
     """ The "height" function takes 2 arguments :
@@ -81,19 +85,68 @@ def display_curves(yUpper,yLower,curves,xEps):
     plt.show()
     #plt.savefig("DU84132V_curves.png")
     
-    
+def mat_pressure(curves,eps,hmax,hmin):
+    curves_length=[]
+    for i in range(len(curves)):
+        curves_length+=[length(curves[i],trapezium,eps)]
+
+    nX=int(1/eps)
+    nY=int((hmax-hmin)/(eps/3))
+    mat=np.zeros((nY,nX))
+#    print(mat)
+    mini=1
+    maxi=-1
+    for i in range(nX):
+        for j in range(nY):
+            sum=0
+            nbvalues=0
+            for k in range(len(curves)-1,0,-1):
+                if (curves[k][i] <= hmin+(eps/3)*j and curves[k][i] > hmin+(eps/3)*(j-1)):
+                    nbvalues+=1
+                    sum+=(curves_length[k])
+            if (nbvalues==0):
+                nbvalues=1
+            mat[j][i]=(sum/nbvalues)
+            if (mat[j][i]>max):
+                maxi=mat[j][i]
+            if(mat[j][i]<min):
+                mini=mat[j][i]
+
+    for i in range(mat.shape[0]):
+        for j in range(mat.shape[1]):
+            mat[i][j]=(mat[i][j]-mini)*(256/(maxi-mini))
+
+    c_dict_thermal = [
+                '#000000', # noir
+                '#0000ff', # bleu
+                '#00ffff', # cyan
+                '#00ff00', # vert
+                '#ffff00', # jaune
+                '#ff0000', # rouge
+                '#ffffff'  # blanc
+        ]
+
+    c_map_thermal = col.LinearSegmentedColormap.from_list('thermal', c_dict_thermal,  N=256, gamma=1.0)
+    cm.register_cmap(cmap=c_map_thermal)
+
+   
+
+    plt.imshow(mat, interpolation='none', cmap='thermal')
+    plt.show
+    plt.savefig("mat.png")                   
     
 def main():
-    xEps=0.001
+    xEps=0.01
     yUpper,yLower=wings_interpolation("DU84132V.DAT",xEps)
     hMin,hMax=height(yUpper,yLower)
     curves=[]
-    lambdaEpsUpper=0.1
-    lambdaEpsLower=0.1
+    lambdaEpsUpper=0.01
+    lambdaEpsLower=0.01
     curves+=compute_curves(yUpper,lambdaEpsUpper,hMax)
     curves+=compute_curves(yLower,lambdaEpsLower,hMin)
-    display_curves(yUpper,yLower,curves,xEps)
-
+    mat_pressure(curves, xEps, 3*hMax,3*hMin)
+#    display_curves(yUpper,yLower,curves,xEps)
+#    matrice_pressure(curves, xEps, hMax,hMin)
 
 
 if __name__ ==  '__main__':
