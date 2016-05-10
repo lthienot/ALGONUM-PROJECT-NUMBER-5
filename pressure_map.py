@@ -83,7 +83,7 @@ def display_curves(yUpper,yLower,curves,xEps):
     for i in range(len(curves)):
         plt.plot(x,curves[i], linewidth=1.0)
     plt.show()
-    #plt.savefig("DU84132V_curves.png")
+    plt.savefig("DU84132V_curves.png")
 
 
 
@@ -102,7 +102,6 @@ def mat_pressure(curves,eps,hmax,hmin):
     nX=int(1/eps)
     nY=int((hmax-hmin)/(eps/3))
     mat=np.zeros((nY,nX))
-#    print(mat)
     mini=1
     maxi=-1
     for i in range(nX):
@@ -125,38 +124,36 @@ def mat_pressure(curves,eps,hmax,hmin):
         for j in range(mat.shape[1]):
             mat[i][j]=(mat[i][j]-mini)*(256/(maxi-mini))
 
-    c_dict_thermal = [
+    c_dict_pressure = [
                 '#ffffff', # noir
-                '#ff0000', # bleu
-                '#00ffff', # cyan
-                '#00ff00', # vert
-                '#ffff00', # jaune
-                '#0000ff', # rouge
+                '#ff0000', # rouge
+                '#00ffff', # jaune
                 '#000000'  # blanc
         ]
 
-    c_map_thermal = col.LinearSegmentedColormap.from_list('thermal', c_dict_thermal,  N=256, gamma=1.0)
-    cm.register_cmap(cmap=c_map_thermal)
+    c_map_pressure = col.LinearSegmentedColormap.from_list('pressure', c_dict_pressure,  N=256, gamma=1.0)
+    cm.register_cmap(cmap=c_map_pressure)
 
     plt.ylim(0,nY-1)
     plt.xlim(0,nX-1,0.1)
-    plt.imshow(mat, interpolation='none', cmap='thermal')
+    plt.imshow(mat, interpolation='none', cmap='pressure')
     plt.show
     plt.savefig("mat.png")                   
     
     
     
 def main():
-    xEps=0.01
+    xEps=0.01           # Have to be small enough to keep a good precision with the map pressure. Without computed curves, the map pressure can't create points because they don't exist. 
     yUpper,yLower=wings_interpolation("DU84132V.DAT",xEps)
     hMin,hMax=height(yUpper,yLower)
     curves=[]
-#    lambdaEpsUpper=0.01
-#    lambdaEpsLower=0.01
-    curves+=compute_curves(yUpper,xEps,hMax)
-    curves+=compute_curves(yLower,xEps,hMin)
-    mat_pressure(curves, xEps, 3*hMax,3*hMin)
+    lambdaEpsUpper=0.01
+    lambdaEpsLower=0.01
+    curves+=compute_curves(yUpper,lambdaEpsUpper,hMax)
+    curves+=compute_curves(yLower,lambdaEpsLower,hMin)
+    
     display_curves(yUpper,yLower,curves,xEps)
+    mat_pressure(curves, xEps, 3*hMax,3*hMin)
 
 
 
