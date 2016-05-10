@@ -3,8 +3,6 @@
 import matplotlib as ma
 ma.use('Agg')
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.colors as col
 import math as m
 import numpy as np
 from splint import wings_interpolation
@@ -113,31 +111,23 @@ def mat_pressure(curves,eps,hmax,hmin):
                     nbvalues+=1
                     sum+=(curves_length[k])
             if (nbvalues==0):
-                nbvalues=1
-            mat[j][i]=(sum/nbvalues)**2
+                mat[j][i]=0
+            else:
+                mat[j][i]=(sum/nbvalues)**2
             if (mat[j][i]>max):
                 maxi=mat[j][i]
             if(mat[j][i]<min):
                 mini=mat[j][i]
-
-    for i in range(mat.shape[0]):
-        for j in range(mat.shape[1]):
-            mat[i][j]=(mat[i][j]-mini)*(256/(maxi-mini))
-
-    c_dict_pressure = [
-                '#ffffff', # noir
-                '#ff0000', # rouge
-                '#00ffff', # jaune
-                '#000000'  # blanc
-        ]
-
-    c_map_pressure = col.LinearSegmentedColormap.from_list('pressure', c_dict_pressure,  N=256, gamma=1.0)
-    cm.register_cmap(cmap=c_map_pressure)
+                
+    for i in range(nX):
+        for j in range(nY):
+            if (mat[j][i]==0):
+                mat[j][i]=mini
 
     plt.ylim(0,nY-1)
     plt.xlim(0,nX-1,0.1)
-    plt.imshow(mat, interpolation='none', cmap='pressure')
-    plt.show
+    plt.imshow(mat, interpolation='none', cmap='hot')
+    plt.show()
     plt.savefig("mat.png")                   
     
     
